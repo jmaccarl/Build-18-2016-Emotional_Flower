@@ -1,4 +1,8 @@
 /*  Emotional Flower Code, using code adapted from Adafruit
+ *   
+ *  Flower changes from happy, neutral and sad states depending on 
+ *  what data has been recieved. Finite state machine keeps track
+ *  of past and current states to determine appropriate movement.
  *  
  *  By: Jenna MacCarley
  */
@@ -27,6 +31,22 @@
 // called this way, it uses the default address 0x40
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
+// Define states
+#define SAD 0
+#define NEUTRAL 1
+#define HAPPY 2
+#define IMPASSIONED 3
+
+// Define delay between movements
+#define MOVE_DELAY 20
+
+// Max and min for flower petals
+#define SERVOMIN  200
+#define SERVOMAX  350 
+
+int oldState = 1;
+int newState = 1;
+
 void setup() {
   Serial.begin(9600);
   Serial.println("16 channel Servo test!");
@@ -53,18 +73,46 @@ void loop() {
   Serial.println("pin 12");
   Serial.println(val12);
 
-  if(!val11 && !val12) Serial.println("Sad");
-  if(!val11 && val12) Serial.println("Neutral");
-  if(val11 && !val12) Serial.println("Happy");
-  if(val11 && val12) Serial.println("Impassioned");
+  // Finite state machine based on previous and current state
+  oldState = newState;
+  if(!val11 && !val12){
+    Serial.println("Sad");
+    newState = SAD;
 
+    if(oldState == NEUTRAL) neutral_to_sad();
+    else if(oldState == HAPPY) happy_to_sad();
+  }
+  else if(!val11 && val12){
+    Serial.println("Neutral");
+    newState = NEUTRAL;
+
+    if(oldState == HAPPY) happy_to_neutral();
+    else if(oldState == SAD || oldState == IMPASSIONED) sad_to_neutral();
+  }
+  else if(val11 && !val12){
+    Serial.println("Happy");
+    newState = HAPPY;
+
+    if(oldState == NEUTRAL) neutral_to_happy();
+    else if(oldState == SAD || oldState == IMPASSIONED) sad_to_neutral();
+  }
+  else if(val11 && val12){
+    Serial.println("Impassioned");
+    newState = IMPASSIONED;
+
+    if(oldState == NEUTRAL) neutral_to_sad();
+    else if(oldState == HAPPY) happy_to_sad();
+  }
   
-  delay(500);
+  delay(1000);  
+}
+
+void happy_to_sad(){
   uint16_t flowerPos = SERVOMIN;
   for (uint16_t pulselen = 350; pulselen > 200; pulselen--) {
     if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
     pwm.setPWM(1, 0, pulselen);
-    delay(10);
+    delay(MOVE_DELAY);
     pwm.setPWM(2, 0, flowerPos);
     pwm.setPWM(3, 0, flowerPos);
     pwm.setPWM(4, 0, flowerPos);
@@ -72,20 +120,21 @@ void loop() {
     flowerPos++;
   }
   for (uint16_t count = 0; count < 50; count++) {
+    delay(MOVE_DELAY);
     pwm.setPWM(2, 0, flowerPos);
     pwm.setPWM(3, 0, flowerPos);
     pwm.setPWM(4, 0, flowerPos);
     pwm.setPWM(5, 0, flowerPos);
     flowerPos++;
-    delay(10);
   }
+}
 
-  delay(500);
-  
+void sad_to_happy(){
+  uint16_t flowerPos = SERVOMAX;
   for (uint16_t pulselen = 200; pulselen < 350; pulselen++) {
     if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
     pwm.setPWM(1, 0, pulselen);
-    delay(10);
+    delay(MOVE_DELAY);
     pwm.setPWM(2, 0, flowerPos);
     pwm.setPWM(3, 0, flowerPos);
     pwm.setPWM(4, 0, flowerPos);
@@ -93,12 +142,85 @@ void loop() {
     flowerPos--;
   }
   for (uint16_t count = 0; count < 50; count++) {
+    delay(MOVE_DELAY);
     pwm.setPWM(2, 0, flowerPos);
     pwm.setPWM(3, 0, flowerPos);
     pwm.setPWM(4, 0, flowerPos);
     pwm.setPWM(5, 0, flowerPos);
     flowerPos--;
-    delay(10);
   }
-  
 }
+
+void sad_to_neutral(){
+  uint16_t flowerPos = SERVOMAX;
+  for (uint16_t pulselen = 200; pulselen < 275; pulselen++) {
+    if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
+    pwm.setPWM(1, 0, pulselen);
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos--;
+  }
+}
+
+void happy_to_neutral(){
+  uint16_t flowerPos = SERVOMIN;
+  for (uint16_t pulselen = 350; pulselen > 275; pulselen--) {
+    if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
+    pwm.setPWM(1, 0, pulselen);
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos++;
+  }
+}
+
+void neutral_to_happy(){
+  uint16_t flowerPos = SERVOMAX-75;
+  for (uint16_t pulselen = 275; pulselen < 350; pulselen++) {
+    if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
+    pwm.setPWM(1, 0, pulselen);
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos--;
+  }
+  for (uint16_t count = 0; count < 50; count++) {
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos--;
+  }
+}
+
+void neutral_to_sad(){
+  uint16_t flowerPos = SERVOMIN + 75;
+  for (uint16_t pulselen = 275; pulselen > 200; pulselen--) {
+    if (pulselen > 250) pwm.setPWM(0, 0, 500-pulselen);
+    pwm.setPWM(1, 0, pulselen);
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos++;
+  }
+  for (uint16_t count = 0; count < 50; count++) {
+    delay(MOVE_DELAY);
+    pwm.setPWM(2, 0, flowerPos);
+    pwm.setPWM(3, 0, flowerPos);
+    pwm.setPWM(4, 0, flowerPos);
+    pwm.setPWM(5, 0, flowerPos);
+    flowerPos++;
+  }
+}
+
+
