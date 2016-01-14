@@ -62,6 +62,8 @@ volatile int mood_nxt = SAD;
 int mood[4][2] = {{LOW, LOW}, {LOW, HIGH}, {HIGH, LOW}, {HIGH, HIGH}};
 float hues[NEO_PIXEL_COUNT];
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NEO_PIXEL_COUNT, NEO_PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+int ignore_nxt = 0; //set to 1 if the last input from the arduino was that we should not change output state yet; this ensures no motor sounds will affect the flower's operation
  
 ////////////////////////////////////////////////////////////////////////////////
 // MAIN SKETCH FUNCTIONS
@@ -186,14 +188,15 @@ boolean samplingIsDone() {
 
 void moodCallback() {
   //first check input pin from Arduino to see if this should even execute
-  if (digitalRead(ARDUINO_SIGNAL_PIN)) { //pin should be high when arduino disconnected or when color change is active, low when we don't want any state change
+  if (digitalRead(ARDUINO_SIGNAL_PIN) && !ignore_nxt) { //pin should be high when arduino disconnected or when color change is active, low when we don't want any state change
     digitalWrite(pin_low, mood[mood_nxt][0]);
     digitalWrite(pin_hi, mood[mood_nxt][1]);
     setNextMoodColor(mood_nxt);
     colorChangeTimer.begin(colorChangeCallback, 1500); //one step per 1.5ms, this means the color fade *should* never exceed the measurement period. may want to fine-tune for visual effect.
     mood_nxt = SAD;
   }
-  //else do nothing
+  else if (ignore_nxt) ignore_nxt = 0;
+  else ignore_nxt = 1;
 }
 
 void colorChangeCallback() {
