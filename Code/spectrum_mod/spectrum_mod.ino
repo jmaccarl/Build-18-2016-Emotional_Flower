@@ -22,7 +22,7 @@ const int AUDIO_INPUT_PIN = 0;        // Input ADC pin for audio data.
 const int ANALOG_READ_RESOLUTION = 10; // Bits of resolution for the ADC.
 const int ANALOG_READ_AVERAGING = 16;  // Number of samples to average with each ADC reading.
 const int POWER_LED_PIN = 13;          // Output pin for power LED (pin 13 to use Teensy 3.0's onboard LED).
-const int ARDUINO_SIGNAL_PIN = 1; //PIN_D1
+const int ARDUINO_SIGNAL_PIN = 10;
 
 const int THRESHOLD_VOICE_NORMAL = 1000000000;
 const int THRESHOLD_VOICE_HAPPY = 1500000000;
