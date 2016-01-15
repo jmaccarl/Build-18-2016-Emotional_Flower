@@ -31,7 +31,7 @@ const int WINDOW_US = 1000000;
 
 int LEDS_ENABLED = 1;
 const int NEO_PIXEL_PIN = 3;
-const int NEO_PIXEL_COUNT = 1;
+const int NEO_PIXEL_COUNT = 5;
 
 ////////////////////////////////////////////////////////////////////////////////
 // INTERNAL STATE
