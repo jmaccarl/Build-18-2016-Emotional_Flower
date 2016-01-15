@@ -43,12 +43,12 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define MOVE_DELAY 20
 
 // Max and min for flower petals
-#define SERVOMIN  200
+#define SERVOMIN  250
 #define SERVOMAX  400
 
-#define STEM_MIN 150
+#define STEM_MIN 200
 #define STEM_MAX 300
-#define STEM_NEUTRAL 225
+#define STEM_NEUTRAL 250
 
 int oldState = 1;
 int newState = 1;
