@@ -2,6 +2,8 @@
 
 Team Members: Jenna MacCarley, Pete Ehrett & Nishant Pol
 
+Winner of the "First Penguin" award for an "offbeat/unique" project.
+
 Build 18 Garage Link: http://build18.herokuapp.com/garage/project/13/
 
 Pictures from Build 18 Symposium: 
